@@ -30,7 +30,7 @@ jobs:
       # Step 3: Install Gosec
       - name: Install Gosec
         run: |
-          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin latest
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
 
       # Step 4: Run Gosec Security Scanner
       - name: Run Gosec Security Scanner
