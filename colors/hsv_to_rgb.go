@@ -1,13 +1,23 @@
+// hsv_to_rgb.go
+// description: Implementation of HSV to RGB color conversion.
+// details:
+// This file contains a function to convert colors from the HSV (Hue, Saturation, Value)
+// color model to to the RGB (Red, Green, Blue) color model.
+// See https://en.wikipedia.org/wiki/HSL_and_HSV for more information on the HSV color model.
+
 package colorconv
 
 import "math"
 
+// HSVToRGB converts a color from HSV to RGB color space.
+// It takes three float64 values representing HSV (0-360, 0-100, 0-100) and returns three uint8 values for RGB (0-255).
 func HSVToRGB(h, s, v float64) (r, g, b uint8) {
     h /= 60
     s /= 100
     v /= 100
 
     hi := math.Floor(h)
+
     f := h - hi
     p := v * (1 - s)
     q := v * (1 - s*f)
