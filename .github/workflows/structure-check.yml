@@ -2,9 +2,11 @@ name: structure-check
 
 on:
   push:
-    branches: [ foo ]
+    branches:
+      - foo
   pull_request:
-    branches: [ foo ]
+    branches:
+      - foo
 
 jobs:
   check-structure:
