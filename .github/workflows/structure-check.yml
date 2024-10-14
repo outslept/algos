@@ -1,0 +1,19 @@
+name: structure-check
+
+on:
+  push:
+    branches: [ foo ]
+  pull_request:
+    branches: [ foo ]
+
+jobs:
+  check-structure:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v23
+    - name: Set up Python
+      uses: actions/setup-python@@v5
+      with:
+        python-version: '3.12'
+    - name: Check project structure
+      run: python .github/scripts/check_structure.py
