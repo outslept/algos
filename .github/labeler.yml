@@ -18,20 +18,24 @@
 
 # Add size labels based on changes
 "size: XS":
-  - any: ["**/*"]
-    size-below: 10
+  - size-below: 10
+  - size-above: 0
+
 "size: S":
-  - any: ["**/*"]
-    size-above: 10
-    size-below: 30
+  - size-below: 30
+  - size-above: 10
+  - all: ["!size: XS"]
+
 "size: M":
-  - any: ["**/*"]
-    size-above: 30
-    size-below: 100
+  - size-below: 100
+  - size-above: 30
+  - all: ["!size: XS", "!size: S"]
+
 "size: L":
-  - any: ["**/*"]
-    size-above: 100
-    size-below: 500
+  - size-below: 500
+  - size-above: 100
+  - all: ["!size: XS", "!size: S", "!size: M"]
+
 "size: XL":
-  - any: ["**/*"]
-    size-above: 500
+  - size-above: 500
+  - all: ["!size: XS", "!size: S", "!size: M", "!size: L"]
