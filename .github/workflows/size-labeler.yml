@@ -1,0 +1,63 @@
+name: Size Labeler
+on: [pull_request]
+
+jobs:
+  size-label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Calculate PR size and update label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            
+            const changes = files.reduce((acc, file) => acc + file.additions + file.deletions, 0);
+            
+            let newSize;
+            if (changes < 10) newSize = 'size: XS';
+            else if (changes < 30) newSize = 'size: S';
+            else if (changes < 100) newSize = 'size: M';
+            else if (changes < 500) newSize = 'size: L';
+            else newSize = 'size: XL';
+            
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            
+            const sizeLabels = ['size: XS', 'size: S', 'size: M', 'size: L', 'size: XL'];
+            const currentSizeLabel = currentLabels
+              .find(label => sizeLabels.includes(label.name));
+            
+            if (!currentSizeLabel || currentSizeLabel.name !== newSize) {
+              if (currentSizeLabel) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: currentSizeLabel.name
+                });
+              }
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: [newSize]
+              });
+              
+              console.log(`Updated size label to ${newSize} (${changes} changes)`);
+            } else {
+              console.log(`Size label ${newSize} already correct (${changes} changes)`);
+            }
