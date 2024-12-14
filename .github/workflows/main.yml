@@ -64,7 +64,6 @@ jobs:
           version: latest
           args: --timeout=5m
           only-new-issues: true
-          reporter: github-pr-review
 
   security:
     name: Security Scan
