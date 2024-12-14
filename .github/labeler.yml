@@ -1,22 +1,19 @@
-# Add 'type: documentation' label to any changes in docs folder
 "type: documentation":
-  - docs/**/*
-  - "**/*.md"
+  - changed-files:
+    - any-glob-to-any-file: ["docs/**/*", "**/*.md"]
 
-# Add 'type: dependencies' to any changes in go.mod or go.sum
 "type: dependencies":
-  - go.mod
-  - go.sum
+  - changed-files:
+    - any-glob-to-any-file: ["go.mod", "go.sum"]
 
-# Add 'scope: tests' to any changes in test files
 "scope: tests":
-  - "**/*_test.go"
+  - changed-files:
+    - any-glob-to-any-file: ["**/*_test.go"]
 
-# Add 'scope: ci' to any changes in GitHub workflows
 "scope: ci":
-  - .github/workflows/**/*
+  - changed-files:
+    - any-glob-to-any-file: [".github/workflows/**/*"]
 
-# Add size labels based on changes
 "size: XS":
   - size-below: 10
   - size-above: 0
