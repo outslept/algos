@@ -1,22 +1,44 @@
 linters-settings:
   govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0
+    enable:
+      - shadow
   gocyclo:
-    min-complexity: 10
-  maligned:
-    suggest-new: true
+    min-complexity: 15
   dupl:
     threshold: 100
   goconst:
-    min-len: 2
-    min-occurrences: 2
+    min-len: 3
+    min-occurrences: 3
+  lll:
+    line-length: 140
 
 linters:
-  enable-all: true
+  enable:
+    - gofmt
+    - goimports
+    - govet
+    - staticcheck
+    - gosimple
+    - unused
+    - errcheck
   disable:
     - exhaustivestruct
     - interfacer
     - scopelint
     - maligned
+    - golint
+    - paralleltest
+    - wsl
+    - nlreturn
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - testpackage
+  max-issues-per-linter: 20
+  max-same-issues: 3
