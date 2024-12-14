@@ -1,0 +1,10 @@
+{
+    "global": {
+        "audit": true,
+        "build": false
+    },
+    "rules": {
+        "G104": true,
+        "G110": true
+    }
+}

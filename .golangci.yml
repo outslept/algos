@@ -1,69 +1,22 @@
 linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 10
+  maligned:
+    suggest-new: true
   dupl:
     threshold: 100
-  funlen:
-    lines: 100
-    statements: 50
   goconst:
     min-len: 2
     min-occurrences: 2
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-  gocyclo:
-    min-complexity: 15
-  goimports:
-    local-prefixes: github.com/changeelog/algos
-  lll:
-    line-length: 140
-  misspell:
-    locale: US
 
 linters:
-  disable-all: true
-  enable:
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
-    - funlen
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - gomnd
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
+  enable-all: true
+  disable:
+    - exhaustivestruct
     - interfacer
-    - lll
-    - misspell
-    - nakedret
-    - rowserrcheck
     - scopelint
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - whitespace
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gomnd
+    - maligned

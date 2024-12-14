@@ -1,0 +1,23 @@
+name: Dependencies
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Every Monday
+  workflow_dispatch:
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update dependencies
+        run: |
+          go get -u ./...
+          go mod tidy
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'chore: update dependencies'
+          branch: 'deps/update'
+          commit-message: 'chore: update dependencies'
