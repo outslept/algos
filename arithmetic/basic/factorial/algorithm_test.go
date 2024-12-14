@@ -1,8 +1,9 @@
 package factorial
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestFactorial_Calculate verifies factorial calculation:

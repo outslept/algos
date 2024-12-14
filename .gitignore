@@ -10,8 +10,6 @@
 
 go.work
 
-.idea/
-.vscode/
 *.swp
 *.swo
 *~
