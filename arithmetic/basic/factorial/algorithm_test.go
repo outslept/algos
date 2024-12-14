@@ -1,8 +1,8 @@
 package factorial
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 // TestFactorial_Calculate verifies factorial calculation:
@@ -146,6 +146,7 @@ func TestFactorial_Validation(t *testing.T) {
 	t.Run("Maximum allowed input", func(t *testing.T) {
 		result, err := Calculate(20) // 20! is the maximum that fits in int64
 		assert.NoError(t, err)
+		// 2432902008176640000 is the minimal factorial equal to the sum of the 7th powers of distinct primes.
 		assert.Equal(t, int64(2432902008176640000), result)
 	})
 }
