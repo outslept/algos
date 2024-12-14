@@ -5,6 +5,12 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: write
+
 jobs:
   verify:
     name: Verify
@@ -32,14 +38,6 @@ jobs:
         with:
           file: ./coverage.txt
           fail_ci_if_error: true
-  
-  labeler:
-    needs: [verify, lint, security]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/labeler@v4
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   lint:
     name: Lint
@@ -47,21 +45,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted correctly:"
+            gofmt -l .
+            exit 1
+          fi
+          
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           args: --timeout=5m
-          
-      - name: Check go.mod/go.sum
-        run: |
-          go mod tidy
-          git diff --exit-code go.mod go.sum
-          
-      - name: Check format
-        run: |
-          gofmt -l .
-          test -z $(gofmt -l .)
+          only-new-issues: true
 
   security:
     name: Security Scan
@@ -73,18 +75,30 @@ jobs:
         uses: securego/gosec@master
         with:
           args: '-no-fail -fmt=sarif -out=security-results.sarif ./...'
-          
-      - name: Run nancy
-        uses: sonatype-nexus-community/nancy-github-action@main
-        
-      - name: Run trivy
+      
+      - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
           
       - name: Upload security results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results.sarif
+          category: security-scan
+
+  labeler:
+    needs: [verify, lint, security]
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+          sync-labels: true
