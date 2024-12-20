@@ -1,38 +1,12 @@
+# Type labels
 "type: documentation":
-  - changed-files:
-    - any-glob-to-any-file: ["docs/**/*", "**/*.md"]
+  - any: ["docs/**/*", "**/*.md"]
 
 "type: dependencies":
-  - changed-files:
-    - any-glob-to-any-file: ["go.mod", "go.sum"]
+  - any: ["go.mod", "go.sum"]
 
 "scope: tests":
-  - changed-files:
-    - any-glob-to-any-file: ["**/*_test.go"]
+  - any: ["**/*_test.go"]
 
 "scope: ci":
-  - changed-files:
-    - any-glob-to-any-file: [".github/workflows/**/*"]
-
-"size: XS":
-  - size-below: 10
-  - size-above: 0
-
-"size: S":
-  - size-below: 30
-  - size-above: 10
-  - all: ["!size: XS"]
-
-"size: M":
-  - size-below: 100
-  - size-above: 30
-  - all: ["!size: XS", "!size: S"]
-
-"size: L":
-  - size-below: 500
-  - size-above: 100
-  - all: ["!size: XS", "!size: S", "!size: M"]
-
-"size: XL":
-  - size-above: 500
-  - all: ["!size: XS", "!size: S", "!size: M", "!size: L"]
+  - any: [".github/workflows/**/*"]

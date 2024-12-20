@@ -5,6 +5,13 @@ on:
   pull_request:
     branches: [ main ]
 
+if: |
+  !contains(github.event.head_commit.message, '[skip ci]') &&
+  !contains(github.event.head_commit.message, '[ci skip]') &&
+  !contains(github.event.head_commit.message, '[no ci]') &&
+  !contains(github.event.head_commit.message, '[skip actions]') &&
+  !contains(github.event.head_commit.message, '[actions skip]')
+
 permissions:
   contents: read
   security-events: write
@@ -12,7 +19,32 @@ permissions:
   pull-requests: write
 
 jobs:
+  should-skip:
+    runs-on: ubuntu-latest
+    outputs:
+      should-skip: ${{ steps.skip-check.outputs.should_skip }}
+    steps:
+      - id: skip-check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = context.payload.head_commit?.message || '';
+            const skipPatterns = [
+              '[skip ci]',
+              '[ci skip]',
+              '[no ci]',
+              '[skip actions]',
+              '[actions skip]'
+            ];
+            const shouldSkip = skipPatterns.some(pattern => message.includes(pattern)) ||
+              message.startsWith('docs:') ||
+              message.startsWith('style:') ||
+              message.startsWith('chore(docs):');
+            core.setOutput('should_skip', shouldSkip);
+            
   verify:
+    needs: should-skip
+    if: ${{ needs.should-skip.outputs.should-skip != 'true' }}
     name: Verify
     runs-on: ubuntu-latest
     steps:
@@ -38,43 +70,10 @@ jobs:
         with:
           file: ./coverage.txt
           fail_ci_if_error: true
-  
-  labeler:
-    needs: [verify, lint, security]
-    permissions:
-      contents: read
-      pull-requests: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Remove existing size labels
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const sizeLabels = ['size: XS', 'size: S', 'size: M', 'size: L', 'size: XL'];
-            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number
-            });
-            
-            for (const label of labels) {
-              if (sizeLabels.includes(label.name)) {
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  name: label.name
-                });
-              }
-            }
-
-      - uses: actions/labeler@v4
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          configuration-path: .github/labeler.yml
-          sync-labels: false
 
   lint:
+    needs: should-skip
+    if: ${{ needs.should-skip.outputs.should-skip != 'true' }}
     name: Lint
     runs-on: ubuntu-latest
     steps:
@@ -101,6 +100,8 @@ jobs:
           only-new-issues: true
 
   security:
+    needs: should-skip
+    if: ${{ needs.should-skip.outputs.should-skip != 'true' }}
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
@@ -123,3 +124,28 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results.sarif
+          category: security-scan
+
+  labeler:
+    needs: [should-skip, verify, lint, security]
+    if: ${{ needs.should-skip.outputs.should-skip != 'true' }}
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+          sync-labels: false
+    
+  skipped:
+    needs: should-skip
+    if: ${{ needs.should-skip.outputs.should-skip == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip CI
+        run: |
+          echo "CI skipped due to commit message"
+          exit 0
